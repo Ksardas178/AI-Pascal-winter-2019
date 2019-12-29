@@ -1,0 +1,27 @@
+﻿unit GameNode;
+{-------------------------------}
+interface
+
+Uses GamePoint;
+
+type
+  
+  Node = class
+    placement: Point;
+    name: string = 'point';
+    linkedNodes: array of byte;
+    team: byte = 0;
+    
+    constructor create(place: Point);
+    begin
+      placement := place;
+    end;
+  end;
+  
+  NodeArr = array of Node;
+{-------------------------------}
+implementation
+
+{---------------------------------}
+begin
+end . 

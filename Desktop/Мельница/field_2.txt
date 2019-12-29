@@ -1,0 +1,25 @@
+id: 0 coord: 0 0 linked: 1 6
+id: 1 coord: 2 0 linked: 0 2 4
+id: 2 coord: 4 0 linked: 1 9
+id: 3 coord: 1 1 linked: 4 7
+id: 4 coord: 2 1 linked: 1 3 5
+id: 5 coord: 3 1 linked: 4 8
+id: 6 coord: 0 2 linked: 0 7 13
+id: 7 coord: 1 2 linked: 3 6 10
+id: 8 coord: 3 2 linked: 5 9 12
+id: 9 coord: 4 2 linked: 2 8 15
+id: 10 coord: 1 3 linked: 7 11
+id: 11 coord: 2 3 linked: 10 12 14
+id: 12 coord: 3 3 linked: 8 11
+id: 13 coord: 0 4 linked: 6 14
+id: 14 coord: 2 4 linked: 11 13
+id: 15 coord: 4 4 linked: 9 14
+mills:
+0 1 2
+2 9 15
+13 14 15
+0 6 13
+3 4 5
+5 8 12
+10 11 12
+3 7 10
