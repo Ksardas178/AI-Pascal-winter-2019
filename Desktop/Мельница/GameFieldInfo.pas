@@ -1,12 +1,14 @@
 ﻿unit GameFieldInfo;
 
 {-------------------------------}
+
 interface
 
 type
   FieldInfo = class
-    
-    private elements := new integer[2];//Число фишек у команд
+  
+  private
+    elements := new integer[2];//Число фишек у команд
   
   public
     constructor create(blue, red: integer);
@@ -54,4 +56,4 @@ end;
 {---------------------------------}
 
 begin
-end . 
+end. 

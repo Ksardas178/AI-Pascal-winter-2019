@@ -1,5 +1,7 @@
 ﻿unit GameTurn;
+
 {-------------------------------}
+
 interface
 
 type

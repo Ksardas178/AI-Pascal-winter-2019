@@ -1,6 +1,7 @@
-﻿uses GraphABC;
-uses GameField;
-uses GameTurn;
+﻿uses 
+  GraphABC,
+  GameField,
+  GameTurn;
 
 var
   field_1: Field;

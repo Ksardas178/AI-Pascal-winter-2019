@@ -1,5 +1,7 @@
 ﻿unit GameMill;
+
 {-------------------------------}
+
 interface
 
 uses GamePoint;
@@ -8,37 +10,35 @@ type
   Mill = class
   
   public
-    elements: list<integer>;//Индексы поля, составляющие мельницу
+    elements:= new Integer[3];//Индексы поля, составляющие мельницу
     
-    constructor create(a, b, c: integer);
+    constructor create(first, second, third: Integer);
     begin
-      elements := new List<integer>;
-      elements.Add(a);
-      elements.Add(b);
-      elements.Add(c);
+      elements[0]:=first;
+      elements[1]:=second;
+      elements[2]:=third;
     end;
     
-    constructor create(s: string);
+    constructor create(s: String);
     begin
-      elements := new List<integer>;
       var idxs := s.Split(' ');
       for var i := 0 to 2 do
-        elements.Add(idxs[i].ToInteger);
+        elements[i]:=idxs[i].ToInteger;
     end;
   
   public
-    function hasElement(e: integer): boolean;//Проверяет наличие элемента в мельнице
+    function hasElement(e: Integer): Boolean;//Проверяет наличие элемента в мельнице
   
   end;
   
   MillArr = array of Mill;
-  
+
 {-------------------------------}
 
 implementation
 
 //public 
-function Mill.hasElement(e: integer): boolean;//Проверяет наличие элемента в мельнице
+function Mill.hasElement(e: Integer): Boolean;//Проверяет наличие элемента в мельнице
 begin
   result := elements.Contains(e);
 end;
@@ -46,4 +46,4 @@ end;
 {---------------------------------}
 
 begin
-end . 
+end. 

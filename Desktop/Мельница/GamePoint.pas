@@ -1,5 +1,7 @@
 ﻿unit GamePoint;
+
 {-------------------------------}
+
 interface
 
 uses GraphABC;
@@ -7,13 +9,13 @@ uses GraphABC;
 const
   thingSize = 10;//Размер фишки
 
-type  
+type
   Point = class
   
   public
-    x, y: integer;
+    x, y: Integer;
     
-    constructor create(newX, newY: integer);
+    constructor create(newX, newY: Integer);
     begin
       x := newX;
       y := newY;    
@@ -31,22 +33,22 @@ type
     end;
   
   public
-    procedure line(other, offset, toResize: Point; scale: double);//Проводит линию между точками с учетом ремасштабирования
-    procedure markOccupied(offset, toResize: Point; scale: double; c: integer);//Отмечает точку как занятую
-    procedure subscribeIdx(idx: integer; offset, toResize: Point; scale: double);//Подписывает точку
+    procedure line(other, offset, toResize: Point; scale: Double);//Проводит линию между точками с учетом ремасштабирования
+    procedure markOccupied(offset, toResize: Point; scale: Double; c: Integer);//Отмечает точку как занятую
+    procedure subscribeIdx(idx: Integer; offset, toResize: Point; scale: Double);//Подписывает точку
   
   private
     procedure line(other: Point);//Проводит линию между двумя точками
-    function getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
-    
-  end;
+    function getNewCoord(offset, toResize: Point; scale: Double): Point;//Пересчет координат в новом масштабе
   
+  end;
+
 {-------------------------------}
 
 implementation
 
 //public
-procedure Point.markOccupied(offset, toResize: Point; scale: double; c: integer);
+procedure Point.markOccupied(offset, toResize: Point; scale: Double; c: Integer);
 var
   newPoint: Point := getNewCoord(offset, toResize, scale);
 begin
@@ -56,7 +58,7 @@ begin
 end;
 
 //public
-procedure Point.subscribeIdx(idx: integer; offset, toResize: Point; scale: double);
+procedure Point.subscribeIdx(idx: Integer; offset, toResize: Point; scale: Double);
 var
   newPoint: Point;
 begin
@@ -65,7 +67,7 @@ begin
 end;
 
 //public
-procedure Point.line(other, offset, toResize: Point; scale: double);
+procedure Point.line(other, offset, toResize: Point; scale: Double);
 var
   place1, place2: Point;
 begin
@@ -75,15 +77,15 @@ begin
 end;
 
 //private
-procedure Point.line(other: Point);
+procedure Point.line(other: Point);//Проводит линию между двумя точками
 begin
   GraphABC.Line(x, window.Height - y, other.x, window.Height - other.y);
 end;
 
 //private
-function Point.getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
+function Point.getNewCoord(offset, toResize: Point; scale: Double): Point;//Пересчет координат в новом масштабе
 var
-  newX, newY: integer;
+  newX, newY: Integer;
 begin
   newX := floor((x - toResize.x) * scale) + offset.x;
   newY := floor((y - toResize.y) * scale) + offset.y;

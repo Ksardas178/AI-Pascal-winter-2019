@@ -1,18 +1,18 @@
 ﻿unit GameNode;
+
 {-------------------------------}
+
 interface
 
-Uses GamePoint;
+uses GamePoint;
 
 type
-  
   Node = class
   
   public
     placement: Point;
-    name: string = 'point';
-    linkedNodes: array of integer;
-    team: integer = 0;
+    linkedNodes: array of Integer;
+    team: Integer = 0;
     
     constructor create(place: Point);
     begin
@@ -21,7 +21,7 @@ type
   end;
   
   NodeArr = array of Node;
-  
+
 {-------------------------------}
 
 implementation

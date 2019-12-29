@@ -1,5 +1,7 @@
 ﻿unit GameBorders;
+
 {-------------------------------}
+
 interface
 
 uses 
@@ -12,6 +14,7 @@ const
 type
   //Границы поля
   Borders = class
+  
   public
     maxPoint, minPoint, centerAlignOffset: GamePoint.Point;
     scale: double;
@@ -84,4 +87,4 @@ end;
 {---------------------------------}
 
 begin
-end . 
+end. 
