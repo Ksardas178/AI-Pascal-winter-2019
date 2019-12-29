@@ -4,7 +4,7 @@ interface
 
 type
   Turn = record
-    currentID, nextID, takenID: shortint;
+    currentID, nextID, takenID: integer;
     
     constructor create(t:turn);
     begin
@@ -13,14 +13,14 @@ type
       takenID := t.takenID;
     end;
     
-    constructor create(start, finish, got: shortint);
+    constructor create(start, finish, got: integer);
     begin
       currentID := start;
       nextID := finish;
       takenID := got;
     end;
     
-    constructor create(start, finish: shortint);
+    constructor create(start, finish: integer);
     begin
       currentID := start;
       nextID := finish;

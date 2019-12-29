@@ -9,8 +9,8 @@ type
   Node = class
     placement: Point;
     name: string = 'point';
-    linkedNodes: array of byte;
-    team: byte = 0;
+    linkedNodes: array of integer;
+    team: integer = 0;
     
     constructor create(place: Point);
     begin

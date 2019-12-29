@@ -28,7 +28,7 @@ type
     
     public procedure line(other, offset, toResize: Point; scale: double);//Проводит линию между точками с учетом ремасштабирования
     
-    public procedure markOccupied(offset, toResize: Point; scale: double; c: byte);//Отмечает точку как занятую
+    public procedure markOccupied(offset, toResize: Point; scale: double; c: integer);//Отмечает точку как занятую
     
     private function getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
     
@@ -42,7 +42,7 @@ type
 {-------------------------------}
 implementation
 
-{public} procedure Point.markOccupied(offset, toResize: Point; scale: double; c: byte);
+{public} procedure Point.markOccupied(offset, toResize: Point; scale: double; c: integer);
 var
   newPoint: Point := getNewCoord(offset, toResize, scale);
 begin

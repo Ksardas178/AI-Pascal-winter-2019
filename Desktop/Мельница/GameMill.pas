@@ -6,11 +6,11 @@ uses GamePoint;
 
 type
   Mill = class
-    elements: list<byte>;//Индексы поля, составляющие мельницу
+    elements: list<integer>;//Индексы поля, составляющие мельницу
     
-    constructor create(a, b, c: byte);
+    constructor create(a, b, c: integer);
     begin
-      elements:=new List<byte>;
+      elements:=new List<integer>;
       elements.Add(a);
       elements.Add(b);
       elements.Add(c);
@@ -18,13 +18,13 @@ type
     
     constructor create(s: string);
     begin
-      elements:=new List<byte>;
+      elements:=new List<integer>;
       var idxs := s.Split(' ');
       for var i := 0 to 2 do
         elements.Add(idxs[i].ToInteger);
     end;
     
-    public function hasElement(e: byte):boolean;
+    public function hasElement(e: integer):boolean;
     begin
       result:=elements.Contains(e);
     end;
