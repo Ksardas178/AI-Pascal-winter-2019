@@ -42,9 +42,6 @@ begin
     //Ход
     field_1.makeTurn(t, team);
     field_1.show;
-    
-    textOut(100, 100, field_1.things.getElements(1));
-    textOut(110, 100, field_1.things.getElements(2));
     Redraw;
     team := (team = 1 ? 2 : 1);//Меняем команду
   end;

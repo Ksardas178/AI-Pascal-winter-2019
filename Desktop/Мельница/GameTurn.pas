@@ -4,9 +4,11 @@ interface
 
 type
   Turn = record
+  
+  public
     currentID, nextID, takenID: integer;
     
-    constructor create(t:turn);
+    constructor create(t: turn);
     begin
       currentID := t.currentID;
       nextID := t.nextID;
@@ -30,8 +32,10 @@ type
   end;
 
 {-------------------------------}
-implementation
-{---------------------------------}
-begin
 
-end . 
+implementation
+
+{---------------------------------}
+
+begin
+end. 

@@ -2,8 +2,9 @@
 {-------------------------------}
 interface
 
-uses GamePoint;
-uses GraphABC;
+uses 
+  GamePoint,
+  GraphABC;
 
 const
   margin = 120;//Поля экрана
@@ -11,6 +12,7 @@ const
 type
   //Границы поля
   Borders = class
+  public
     maxPoint, minPoint, centerAlignOffset: GamePoint.Point;
     scale: double;
     
@@ -18,21 +20,21 @@ type
     begin
       scale := 1;
     end;
-    
-    public procedure checkPoint(place: GamePoint.Point);//Подстройка границ окна под новую точку
-    
-    public procedure setScale(newScale: double);//Ручное ремасштабирование
-    
-    private procedure setOffset;//Переопределение точки привязки
-    
-    public procedure setScale();//Автоматическое ремасштабирование
-    
+  
+  public
+    procedure checkPoint(place: GamePoint.Point);//Подстройка границ окна под новую точку
+    procedure setScale(newScale: double);//Ручное ремасштабирование
+    procedure setScale();//Автоматическое ремасштабирование
+  
+  private
+    procedure setOffset;//Переопределение точки привязки  
   end;
 
 {-------------------------------}
 implementation
 
-{public} procedure Borders.setScale();//Автоматическое ремасштабирование
+//public
+procedure Borders.setScale();//Автоматическое ремасштабирование
 var
   h, w: integer;
 begin
@@ -42,7 +44,8 @@ begin
   setOffset;
 end;
 
-{private} procedure Borders.setOffset;
+//private
+procedure Borders.setOffset;
 var
   h, w, newX, newY: integer;
 begin
@@ -54,13 +57,15 @@ begin
   writeln(centerAlignOffset);
 end;
 
-{public} procedure Borders.setScale(newScale: double);//Ручное ремасштабирование
+//public
+procedure Borders.setScale(newScale: double);//Ручное ремасштабирование
 begin
   scale := newScale;
   setOffset;
 end;
 
-{public} procedure Borders.checkPoint(place: GamePoint.Point);//Подстройка границ окна под новую точку
+//public
+procedure Borders.checkPoint(place: GamePoint.Point);//Подстройка границ окна под новую точку
 begin
   if (maxPoint = nil) then//Если еще нет точек привязки
   begin

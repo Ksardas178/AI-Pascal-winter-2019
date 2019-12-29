@@ -2,30 +2,35 @@
 {-------------------------------}
 interface
 
-uses GraphABC;
-uses GamePoint;
-uses GameNode;
-uses GameBorders;
-uses GameMill;
-uses GameTurn;
-uses BlockFileOfT;
-uses GameFieldInfo;
-uses System.Threading.Tasks;
+uses 
+  GraphABC, 
+  GamePoint, 
+  GameNode, 
+  GameBorders, 
+  GameMill, 
+  GameTurn, 
+  BlockFileOfT, 
+  GameFieldInfo, 
+  System.Threading.Tasks;
 
 const
   //condAmount = 2282280 * 8;//Количество состояний для игры 6*6
   thingsAmount = 12;//Количество фишек у игроков изначально
 
-type
-  
+type  
   Field = class
-    nodes: NodeArr;
-    name: String;
-    borderPoints: Borders;
-    mills: MillArr;
+  
+  public
     currentTurnNumber: integer = 0;
+    name: String;
+  
+  private
+    nodes: NodeArr;
+    borderPoints: Borders;
+    mills: MillArr;   
     things: FieldInfo = new FieldInfo(0, 0);
-    
+  
+  public
     constructor create();
     begin
       borderPoints := new Borders;
@@ -52,97 +57,70 @@ type
       nodes := nNodes;
       name := nName;
     end;
-    
-    public procedure show();//Вывод поля на экран
-    
-    public procedure readField(fileName: String);//Чтение поля из файла
-    
-    private function hashField: int64;//Уникальный код поля
-    
-    private procedure unhashField(h: int64);//Считывание поля из кода
-    
-    private function hashTurn(t: turn; team: integer): word;//Уникальный код хода
-    
-    private function unhashTurn(h: word): Turn;//Считывание хода из кода
-    
-    public function checkLoss: boolean;//Проверка на поражение
-    
-    public function checkWin: boolean;//Проверка на выигрыш
-    
-    public procedure readGame(path: String);//Чтение записи игры из текстового файла
-    
-    private procedure occupy(idx, team: integer);//Постановка фишки
-    
-    private function leave(idx: integer): integer;//Снятие фишки с доски, возвращает команду
-    
-    private function checkThreatens(var team: integer): integer;//Возвращает id клетки с мельницей за 1 ход
-    
-    private function checkConnection(idx1, idx2: integer): boolean;//Проверка существования связи между узлами
-    
-    public procedure setScale(var coeff: double);//Ручное ремасштабирование
-    
-    public procedure setScale();//ремасштабирование
-    
-    public procedure addNode(newNode: Node);//Добавление узла
-    
-    private function has2pretendents(idx: integer): boolean;//Претендуют ли на клетку обе команды
-    
-    private function has3pretendents(idx, millers: integer): boolean;//Претендуют ли на клетку обе команды, где у millers уже что-то строится
-    
-    private function checkNearBuildMill(team: integer; observeMill: Mill): integer;//Проверяет, близка ли мельница team к завершению, и возвращает индекс пустой клетки или -1
-    
-    private function canOccupy(team, idx: integer): list<integer>;//Проверяем, можем ли занять клетку следующим ходом, возвращаем стартовые индексы или пустой лист
-    
-    private function getThings(var team: integer): list<integer>;//Возвращает количество фишек команды
-    
-    private function whereToPlaceNewAll: list<Turn>;//Выставление на поле фишки всеми способами
-    
-    private function whereToPlaceNew(var team: integer): list<Turn>;//Выставление на поле фишки с умом
-    
-    private function whereToMoveAll(team: integer): list<Turn>;//Ход фишки всеми способами
-    
-    private function whereToMove(team: integer): list<Turn>;//Ход фишки с умом
-    
-    public procedure makeTurn(t: turn; team: integer := 0);//Ход
-    
-    private function getRate(var team: integer): real;//Оценка текущей позиции
-    
-    private function paths4teamAdvantage(team, opponent: integer): integer;//Возвращает преимущество в путях для team над opponent (оценочная)
-    
-    private function paths4team(team: integer): integer;//Возвращает свободные пути для team
-    
-    private function longToBytes(c: int64): list<integer>;//Конвертируем значения счетчика на лету в хеш поля
-    
-    public function findTurn(turnsDepth: integer): Turn;//Поиск лучшего хода
-    
-    private procedure reverseTurn(t: turn);//Отмена хода
-    
-    private function predictRate(turnsDepth: integer): real;//Оценка поля через n ходов
-    
-    private function getThingsAmount(team: integer): integer;//Возвращает количество фишек команды
-    
-    private function wayExists(team: integer): boolean;//Есть ли свобода передвижения?
   
-    //private function getObviousTurn: Turn//Возвращает очевидный ход, если такой найдется
+  public
+    //Процедуры:
+    procedure show();//Вывод поля на экран
+    procedure readField(fileName: String);//Чтение поля из файла
+    procedure readGame(path: String);//Чтение записи игры из текстового файла
+    procedure setScale(var coeff: double);//Ручное ремасштабирование
+    procedure setScale();//Автоматическое ремасштабирование
+    procedure addNode(newNode: Node);//Добавление узла
+    procedure makeTurn(t: turn; team: integer := 0);//Ход
+    //Функции:
+    function findTurn(turnsDepth: integer): Turn;//Поиск лучшего хода
+    function checkLoss: boolean;//Проверка на поражение
+    function checkWin: boolean;//Проверка на выигрыш
+  
+  private
+    //Процедуры:
+    procedure unhashField(h: int64);//Считывание поля из кода
+    procedure reverseTurn(t: turn);//Отмена хода
+    procedure occupy(idx, team: integer);//Постановка фишки
+    //Функции:
+    function hashField: int64;//Уникальный код поля    
+    function hashTurn(t: turn; team: integer): word;//Уникальный код хода
+    function unhashTurn(h: word): Turn;//Считывание хода из кода    
+    function leave(idx: integer): integer;//Снятие фишки с доски, возвращает команду
+    function checkThreatens(var team: integer): integer;//Возвращает id клетки с мельницей за 1 ход
+    function checkConnection(idx1, idx2: integer): boolean;//Проверка существования связи между узлами
+    function has2pretendents(idx: integer): boolean;//Претендуют ли на клетку обе команды
+    function has3pretendents(idx, millers: integer): boolean;//Претендуют ли на клетку обе команды, где у millers уже что-то строится
+    function checkNearBuildMill(team: integer; observeMill: Mill): integer;//Проверяет, близка ли мельница team к завершению, и возвращает индекс пустой клетки или -1
+    function canOccupy(team, idx: integer): list<integer>;//Проверяем, можем ли занять клетку следующим ходом, возвращаем стартовые индексы или пустой лист
+    function getThings(var team: integer): list<integer>;//Возвращает количество фишек команды
+    function whereToPlaceNewAll: list<Turn>;//Выставление на поле фишки всеми способами
+    function whereToPlaceNew(var team: integer): list<Turn>;//Выставление на поле фишки с умом
+    function whereToMoveAll(team: integer): list<Turn>;//Ход фишки всеми способами
+    function whereToMove(team: integer): list<Turn>;//Ход фишки с умом
+    function getRate(var team: integer): real;//Оценка текущей позиции
+    function paths4teamAdvantage(team, opponent: integer): integer;//Возвращает преимущество в путях для team над opponent (оценочная)
+    function paths4team(team: integer): integer;//Возвращает свободные пути для team
+    function longToBytes(c: int64): list<integer>;//Конвертируем значения счетчика на лету в хеш поля
+    function predictRate(turnsDepth: integer): real;//Оценка поля через n ходов
+    function getThingsAmount(team: integer): integer;//Возвращает количество фишек команды
+    function wayExists(team: integer): boolean;//Есть ли свобода передвижения?
+    //function getObviousTurn: Turn//Возвращает очевидный ход, если такой найдется
   end;
 
   {-------------------------------}
+  
 implementation
 
-{private} function Field.predictRate(turnsDepth: integer): real;//Вызывать только от нечетного количества ходов
+//private
+function Field.predictRate(turnsDepth: integer): real;//Вызывать только от нечетного количества ходов
 var
   turns: list<Turn>;
-  //newTurn: Turn;
   currTeam: integer := currentTurnNumber mod 2 + 1;
   quality: real := real.MinValue;//Качество лучшего хода
   rate: real;
-  getLower:boolean:=turnsDepth mod 2 = 1;
+  getLower: boolean := turnsDepth mod 2 = 1;
 begin
   if (currentTurnNumber < thingsAmount * 2) then
     turns := whereToPlaceNew(currTeam)
   else turns := whereToMove(currTeam);
   
-  result := (getLower?real.MaxValue : real.MinValue);//Рейтинг текущего хода. Минимакс
+  result := (getLower ? real.MaxValue : real.MinValue);//Рейтинг текущего хода. Минимакс
   
   if (turnsDepth = 0) then//Завершение рекурсии
     foreach var t in turns do//Для всех возможных ходов оцениваем последствия
@@ -157,20 +135,21 @@ begin
     foreach var t in turns do//Для каждого возможного хода
     begin
       makeTurn(t, currTeam);
-      if (things.getElements(currTeam mod 2+1)<=2) and (currentTurnNumber>thingsAmount*2)//Если фигур у оппонента не осталось, то выдаем максимальную оценку текущему игроку и не считаем дальше (опт.)
-        then result:=(getLower ? real.MinValue : real.MaxValue)
+      if (things.getElements(currTeam mod 2 + 1) <= 2) and (currentTurnNumber > thingsAmount * 2)//Если фигур у оппонента не осталось, то выдаем максимальную оценку текущему игроку и не считаем дальше (опт.)
+        then result := (getLower ? real.MinValue : real.MaxValue)
       else 
-        begin
-          quality := predictRate(turnsDepth - 1);//Предсказываем его последствия
-          if ((getLower) ? (result>quality) : (result < quality)) 
-            then result := quality;//И возвращаем лучший/худший результат
-        end;
+      begin
+        quality := predictRate(turnsDepth - 1);//Предсказываем его последствия
+        if ((getLower) ? (result > quality) : (result < quality)) 
+          then result := quality;//И возвращаем лучший/худший результат
+      end;
       reverseTurn(t);
     end;
   end;
 end;
 
-{private} function Field.findTurn(turnsDepth: integer): Turn;//Поиск хода для текущей команды
+//private
+function Field.findTurn(turnsDepth: integer): Turn;//Поиск хода для текущей команды
 var
   turns: list<Turn>;
   newTurn: Turn;
@@ -195,7 +174,8 @@ begin
   end;
 end;
 
-{private} function Field.longToBytes(c: int64): list<integer>;//Конвертируем значения счетчика на лету в хеш поля
+//private
+function Field.longToBytes(c: int64): list<integer>;//Конвертируем значения счетчика на лету в хеш поля
 var
   bytes: integer = nodes.Length div 5 + 1;
   d: int64 = power(256, bytes - 1).Round;
@@ -209,7 +189,8 @@ begin
   end;
 end;
 
-{public} procedure Field.makeTurn(t: turn; team: integer);//Ход
+//private
+procedure Field.makeTurn(t: turn; team: integer);//Ход
 var
   opponent := (team = 1 ? 2 : 1);
 begin
@@ -223,7 +204,8 @@ begin
   currentTurnNumber += 1;
 end;
 
-{private} procedure Field.reverseTurn(t: turn);//Отмена хода
+//private
+procedure Field.reverseTurn(t: turn);//Отмена хода
 var
   team, opponent: integer;
 begin
@@ -238,7 +220,8 @@ begin
   currentTurnNumber -= 1;
 end;
 
-{private} function Field.getThings(var team: integer): list<integer>;//Возвращает фишки команды
+//private
+function Field.getThings(var team: integer): list<integer>;//Возвращает фишки команды
 var
   i: integer := 0;
   toFind: integer = things.getElements(team);
@@ -252,7 +235,8 @@ begin
   end;
 end;
 
-{private} function Field.paths4teamAdvantage(team, opponent: integer): integer;//Возвращает преимущество в путях для team над opponent
+//private
+function Field.paths4teamAdvantage(team, opponent: integer): integer;//Возвращает преимущество в путях для team над opponent
 begin
   foreach var n in nodes do//Для всех клеток команды
   begin
@@ -261,26 +245,27 @@ begin
       begin
         var t := nodes[p].team;
         if 
-          (t = team) then result += 1
+        (t = team) then result += 1
         else 
-          if (t = opponent) then result -= 1;
+        if (t = opponent) then result -= 1;
       end
   end
 end;
 
-{private} function Field.getRate(var team: integer): real;//Оценка позиции
+//private
+function Field.getRate(var team: integer): real;//Оценка позиции
 var
   difference: integer;
   opponent: integer := (team = 1 ? 2 : 1);
   ways: integer := paths4teamAdvantage(team, opponent);
 begin
   difference := things.getDifference(team, opponent);
-  result := (difference + ways / 10)*10/(currentTurnNumber+10);//Примерная оценка свободы хода. Для ранних ходов выше
+  result := (difference + ways / 10) * 10 / (currentTurnNumber + 10);//Примерная оценка свободы хода. Для ранних ходов выше
   if (ways = 0) then result := integer.MinValue;
 end;
 
-
-{private} function Field.whereToPlaceNewAll: list<Turn>;//Перебор простых ходов (напрямую не вызывать!)
+//private
+function Field.whereToPlaceNewAll: list<Turn>;//Перебор простых ходов (напрямую не вызывать!)
 begin
   result := new List<Turn>;
   for var j := 0 to nodes.Length - 1 do
@@ -288,7 +273,8 @@ begin
       result.Add(new Turn(-1, j, -1)); 
 end;
 
-{private} function Field.whereToPlaceNew(var team: integer): list<Turn>;//Выставление на поле фишки с умом
+//private
+function Field.whereToPlaceNew(var team: integer): list<Turn>;//Выставление на поле фишки с умом
 var
   check: integer;
   thingsToGet: list<integer>;
@@ -322,7 +308,8 @@ begin
     result := whereToPlaceNewAll;
 end;
 
-{private} function Field.whereToMoveAll(team: integer): list<Turn>;//Все возможные ходы (напрямую не вызывать!)
+//private
+function Field.whereToMoveAll(team: integer): list<Turn>;//Все возможные ходы (напрямую не вызывать!)
 var
   thingsToGet: list<integer>;
   check: integer;
@@ -339,7 +326,8 @@ begin
     end;
 end;
 
-{private} function Field.whereToMove(team: integer): list<Turn>;//Все умные ходы для team
+//private
+function Field.whereToMove(team: integer): list<Turn>;//Все умные ходы для team
 var
   thingsToGet: list<integer>;
   startNodes: list<integer>;
@@ -370,41 +358,47 @@ begin
     result := whereToMoveAll(team);
 end;
 
-{public} procedure Field.setScale();
+//public
+procedure Field.setScale();//Автоматическое ремасштабирование
 begin
   borderPoints.setScale();
 end;
 
-{public} procedure Field.setScale(var coeff: double);
+//public
+procedure Field.setScale(var coeff: double);//Ручное ремасштабирование
 begin
   borderPoints.setScale(coeff);
 end;
 
-{private} procedure Field.occupy(idx, team: integer);//Постановка фишки
+//private
+procedure Field.occupy(idx, team: integer);//Постановка фишки
 begin
   nodes[idx].team := team;
 end;
 
-{private} function Field.leave(idx: integer): integer;//Снятие фишки с доски
+//private
+function Field.leave(idx: integer): integer;//Снятие фишки с доски
 begin
   result := nodes[idx].team;
   nodes[idx].team := 0;
 end;
 
-{private} function Field.has2pretendents(idx: integer): boolean;//Претендуют ли на клетку обе команды
+//private
+function Field.has2pretendents(idx: integer): boolean;//Проверяем, претендуют ли на клетку обе команды
 var
   t1: boolean = false;
   t2: boolean = false;
 begin
   foreach var n in nodes[idx].linkedNodes do//Обходим соседей и ищем претендентов
   begin
-    if (nodes[n].team = 1) then t1 := true;
+    if (nodes[n].team = 1) then t1 := true else
     if (nodes[n].team = 2) then t2 := true;
   end;
   result := (t1 and t2);
 end;
 
-{private} function Field.has3pretendents(idx, millers: integer): boolean;//Претендуют ли на клетку обе команды, где у millers уже что-то строится
+//private
+function Field.has3pretendents(idx, millers: integer): boolean;//Проверяем, претендуют ли на клетку обе команды, где у millers уже что-то строится
 var
   t1: boolean = false;
   t2: integer;
@@ -417,14 +411,16 @@ begin
   result := t1 and (t2 >= 2);
 end;
 
-{private} function Field.canOccupy(team, idx: integer): list<integer>;//Проверяем, можем ли занять клетку следующим ходом, возвращаем стартовые индексы или пустой лист
+//private
+function Field.canOccupy(team, idx: integer): list<integer>;//Проверяем, можем ли занять клетку следующим ходом, возвращаем стартовые индексы или пустой лист
 begin
   result := new List<integer>;
   foreach var n in nodes[idx].linkedNodes do
     if (nodes[n].team = team) then result.Add(n);
 end;
 
-{private} function Field.checkNearBuildMill(team: integer; observeMill: Mill): integer;//Проверяет, близка ли мельница team к завершению, и возвращает индекс пустой клетки или -1
+//private
+function Field.checkNearBuildMill(team: integer; observeMill: Mill): integer;//Проверяет, близка ли мельница team к завершению, и возвращает индекс пустой клетки или -1
 var
   busy: integer;
 begin
@@ -437,7 +433,8 @@ begin
   if (busy <> 2) then result := -1;
 end;
 
-{private} function Field.checkThreatens(var team: integer): integer;//Возвращает id клетки с будущей мельницей team, которую можем заруинить, или -1
+//private
+function Field.checkThreatens(var team: integer): integer;//Возвращает id клетки с будущей мельницей team, которую можем заруинить, или -1
 var
   i, idx, l: integer;
 begin
@@ -452,19 +449,22 @@ begin
   until (i = l) or (result <> -1);//Ищем, пока не найдем или не обойдем все
 end;
 
-{private} function Field.getThingsAmount(team: integer): integer;//Возвращает количество фишек команды
+//private
+function Field.getThingsAmount(team: integer): integer;//Возвращает количество фишек команды
 begin
   result := 0;
   foreach var n in nodes do
     if (n.team = team) then result += 1;
 end;
 
-{public} function Field.checkWin: boolean;
+//public
+function Field.checkWin: boolean;
 begin
   
 end;
 
-{private} function Field.paths4team(team: integer): integer;//Возвращает свободные пути для team
+//private
+function Field.paths4team(team: integer): integer;//Возвращает свободные пути для team
 begin
   foreach var n in nodes do//Для всех клеток команды
     if (n.team = team) then
@@ -472,7 +472,8 @@ begin
         if (nodes[p].team = 0) then result += 1;
 end;
 
-{private} function Field.wayExists(team: integer): boolean;//Есть ли свобода передвижения?
+//private
+function Field.wayExists(team: integer): boolean;//Есть ли свобода передвижения?
 var
   i, j: integer;
 begin
@@ -490,7 +491,8 @@ begin
   end;
 end;
 
-{public} function Field.checkLoss: boolean;
+//public
+function Field.checkLoss: boolean;
 begin
   result := false;
   if (getThingsAmount(1) = 2) 
@@ -501,14 +503,16 @@ begin
     result := true;
 end;
 
-{private} function Field.checkConnection(idx1, idx2: integer): boolean;//Проверка существования связи между узлами
+//private
+function Field.checkConnection(idx1, idx2: integer): boolean;//Проверка существования связи между узлами
 begin
   result := false;
   foreach var i in nodes[idx1].linkedNodes do
     if (i = idx2) then result := true;
 end;
 
-{public} procedure Field.readField(fileName: String);//Чтение поля из файла
+//public
+procedure Field.readField(fileName: String);//Чтение поля из файла
 var
   t: text;
   i, x, y, snap: integer;
@@ -529,14 +533,11 @@ begin
         y := info[2].ToInteger;
       end;
       setLength(snaps[i], info.Length - 3);
-        //print(i);
       for var j := 3 to (info.Length - 1) do//Перебираем индексы связанных с текущей точек
       begin
         snap := info[j].ToInteger;
         snaps[i][j - 3] := snap;//Заполняем массив связей
-        //print(j-3);
       end;
-        //writeln;
       newPoint := new Point(x, y);
       borderPoints.checkPoint(newPoint);//Ремасштабирование
       nodes[i] := new Node(newPoint);
@@ -545,7 +546,7 @@ begin
       i += 1;
       line := lines[i];
     end;
-  until (line = 'mills:');
+  until (line = 'mills:');//Пока не доберемся до перечисления позиций для мельниц
   
   var length := Lines.Length;
   SetLength(mills, length - i - 1);
@@ -556,9 +557,10 @@ begin
   end;
 end;
 
-{private} function Field.hashTurn(t: turn; team: integer): word;//Уникальный код хода
+//private
+function Field.hashTurn(t: turn; team: integer): word;//Уникальный код хода
 var
-  nT: turn := new Turn(-1, -1, -1);
+  nT: Turn := new Turn(-1, -1, -1);
   i: integer;
   opponent: integer = (team = 1 ? 2 : 1);
 begin
@@ -585,7 +587,8 @@ begin
   result := nT.currentID * nT.nextID * nT.takenID * team;
 end;
 
-{private} function Field.unhashTurn(h: word): turn;//Считывание хода из кода
+//private
+function Field.unhashTurn(h: word): Turn;//Считывание хода из кода
 var
   i: integer;
 begin
@@ -612,7 +615,8 @@ begin
   result:=nT;}
 end;
 
-{private} function Field.hashField: int64;//Уникальный код поля
+//private
+function Field.hashField: int64;//Уникальный код поля
 var
   nodeAmount: integer := nodes.Length;
   multiplier: int64 = 1;
@@ -626,7 +630,8 @@ begin
   end;
 end;
 
-{private} procedure Field.unhashField(h: int64);//Считывание поля из кода
+//private
+procedure Field.unhashField(h: int64);//Считывание поля из кода
 var
   nodeAmount: integer := nodes.Length;
   multiplier: int64 = int64(BigInteger.Pow(3, nodeAmount - 1));
@@ -639,19 +644,22 @@ begin
   end;
 end;
 
-{public} procedure Field.readGame(path: String);//Чтение записи игры из текстового файла
+//public
+procedure Field.readGame(path: String);//Чтение записи игры из текстового файла
 begin
   
 end;
 
-{public} procedure Field.addNode(newNode: Node);
+//public
+procedure Field.addNode(newNode: Node);
 begin
   borderPoints.checkPoint(newNode.placement);
   setLength(nodes, nodes.Length + 1);
   nodes[nodes.Length - 1] := newNode;
 end;
 
-{public} procedure Field.show();//Вывод поля на экран
+//public
+procedure Field.show();//Вывод поля на экран
 var
   currPoint, linkedPoint: Point;
 begin
@@ -669,7 +677,8 @@ begin
     end;
   end;
 end;
+
   {---------------------------------}
-  {начало инициирующей части}
+
 begin
 end. 

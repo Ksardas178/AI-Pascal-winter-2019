@@ -7,10 +7,11 @@ uses GraphABC;
 const
   thingSize = 10;//Размер фишки
 
-type
-  
+type  
   Point = class
-    public x, y: integer;
+  
+  public
+    x, y: integer;
     
     constructor create(newX, newY: integer);
     begin
@@ -24,25 +25,28 @@ type
       y := other.y;    
     end;
     
-    private procedure line(other: Point);//Проводит линию между двумя точками
-    
-    public procedure line(other, offset, toResize: Point; scale: double);//Проводит линию между точками с учетом ремасштабирования
-    
-    public procedure markOccupied(offset, toResize: Point; scale: double; c: integer);//Отмечает точку как занятую
-    
-    private function getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
-    
-    public procedure subscribeIdx(idx: integer; offset, toResize: Point; scale: double);//Подписывает точку
-    
     procedure print; reintroduce;//Переопределение вывода координат
     begin
       write('(', x, ', ', y, ')');
     end;
+  
+  public
+    procedure line(other, offset, toResize: Point; scale: double);//Проводит линию между точками с учетом ремасштабирования
+    procedure markOccupied(offset, toResize: Point; scale: double; c: integer);//Отмечает точку как занятую
+    procedure subscribeIdx(idx: integer; offset, toResize: Point; scale: double);//Подписывает точку
+  
+  private
+    procedure line(other: Point);//Проводит линию между двумя точками
+    function getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
+    
   end;
+  
 {-------------------------------}
+
 implementation
 
-{public} procedure Point.markOccupied(offset, toResize: Point; scale: double; c: integer);
+//public
+procedure Point.markOccupied(offset, toResize: Point; scale: double; c: integer);
 var
   newPoint: Point := getNewCoord(offset, toResize, scale);
 begin
@@ -51,7 +55,8 @@ begin
   Brush.Color := color.Empty;
 end;
 
-{public} procedure Point.subscribeIdx(idx: integer; offset, toResize: Point; scale: double);
+//public
+procedure Point.subscribeIdx(idx: integer; offset, toResize: Point; scale: double);
 var
   newPoint: Point;
 begin
@@ -59,7 +64,8 @@ begin
   textOut(newPoint.x + thingSize{Чуть сместили, чтобы не закрасить индекс}, newPoint.y, idx);
 end;
 
-{public} procedure Point.line(other, offset, toResize: Point; scale: double);
+//public
+procedure Point.line(other, offset, toResize: Point; scale: double);
 var
   place1, place2: Point;
 begin
@@ -68,12 +74,14 @@ begin
   place1.line(place2);
 end;
 
-{private} procedure Point.line(other: Point);
+//private
+procedure Point.line(other: Point);
 begin
   GraphABC.Line(x, window.Height - y, other.x, window.Height - other.y);
 end;
 
-{private} function Point.getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
+//private
+function Point.getNewCoord(offset, toResize: Point; scale: double): Point;//Пересчет координат в новом масштабе
 var
   newX, newY: integer;
 begin
@@ -81,6 +89,8 @@ begin
   newY := floor((y - toResize.y) * scale) + offset.y;
   result := new Point(newX, newY);
 end;
+
 {---------------------------------}
+
 begin
 end . 

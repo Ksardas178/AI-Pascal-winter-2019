@@ -7,6 +7,8 @@ Uses GamePoint;
 type
   
   Node = class
+  
+  public
     placement: Point;
     name: string = 'point';
     linkedNodes: array of integer;
@@ -19,9 +21,12 @@ type
   end;
   
   NodeArr = array of Node;
+  
 {-------------------------------}
+
 implementation
 
 {---------------------------------}
+
 begin
-end . 
+end. 
