@@ -4,6 +4,8 @@
 
 interface
 
+{$region Uses}
+
 uses 
   GraphABC, 
   GamePoint, 
@@ -14,6 +16,8 @@ uses
   BlockFileOfT, 
   GameFieldInfo, 
   System.Threading.Tasks;
+
+  {$endRegion Uses}
 
 const
   //condAmount = 2282280 * 8;//Количество состояний для игры 6*6
@@ -32,7 +36,12 @@ type
     mills: MillArr;   
     things: FieldInfo = new FieldInfo(0, 0);
   
+  {$region Constructors}
+  
   public
+  
+    
+  
     constructor create();
     begin
       borderPoints := new Borders;
@@ -60,6 +69,8 @@ type
       name := nName;
     end;
   
+  {$endRegion Constructors}
+    
   public
     //Процедуры:
     procedure show();//Вывод поля на экран
@@ -67,7 +78,6 @@ type
     procedure readGame(path: String);//Чтение записи игры из текстового файла
     procedure setScale(var coeff: Double);//Ручное ремасштабирование
     procedure setScale();//Автоматическое ремасштабирование
-    procedure addNode(newNode: Node);//Добавление узла
     procedure makeTurn(t: Turn; team: Integer := 0);//Ход
     //Функции:
     function findTurn(turnsDepth: Integer): Turn;//Поиск лучшего хода
@@ -109,46 +119,113 @@ type
 
 implementation
 
+{$region ID/convert functions}
+
 //private
-function Field.predictRate(turnsDepth: Integer): Real;//Вызывать только от нечетного количества ходов
+function Field.longToBytes(c: int64): List<Integer>;//Конвертируем значения счетчика на лету в хеш поля
 var
-  turns: List<Turn>;
-  currTeam: Integer := currentTurnNumber mod 2 + 1;
-  quality: Real := Real.MinValue;//Качество лучшего хода
-  rate: Real;
-  getLower: Boolean := turnsDepth mod 2 = 1;
+  bytes: Integer = nodes.Length div 5 + 1;
+  d: int64 = power(256, bytes - 1).Round;
 begin
-  if (currentTurnNumber < thingsAmount * 2) then
-    turns := whereToPlaceNew(currTeam)
-  else turns := whereToMove(currTeam);
-  
-  result := (getLower ? Real.MaxValue : Real.MinValue);//Рейтинг текущего хода. Минимакс
-  
-  if (turnsDepth = 0) then//Завершение рекурсии
-    foreach var t in turns do//Для всех возможных ходов оцениваем последствия
-    begin
-      makeTurn(t, currTeam);
-      rate := getRate(currTeam);
-      if (result < rate) then result := getRate(currTeam);//И возвращаем лучший положительный результат
-      reverseTurn(t);
-    end
-  else
+  result := new List<Integer>;
+  for var i := 0 to (bytes - 1) do
   begin
-    foreach var t in turns do//Для каждого возможного хода
-    begin
-      makeTurn(t, currTeam);
-      if (things.getElements(currTeam mod 2 + 1) <= 2) and (currentTurnNumber > thingsAmount * 2)//Если фигур у оппонента не осталось, то выдаем максимальную оценку текущему игроку и не считаем дальше (опт.)
-        then result := (getLower ? Real.MinValue : Real.MaxValue)
-      else 
-      begin
-        quality := predictRate(turnsDepth - 1);//Предсказываем его последствия
-        if ((getLower) ? (result > quality) : (result < quality)) 
-          then result := quality;//И возвращаем лучший/худший результат
-      end;
-      reverseTurn(t);
-    end;
+    result.Add(c div d);
+    c := c mod d;
+    d := d div 256;
   end;
 end;
+
+//private
+function Field.hashField: int64;//Уникальный код поля
+var
+  nodeAmount: Integer := nodes.Length;
+  multiplier: int64 = 1;
+begin
+  for var i := 0 to nodeAmount - 1 do//Каждый узел перекодируем
+  begin
+    var sum: int64 = 0;
+    sum := nodes[i].team * multiplier;
+    multiplier *= 3;
+    result += sum;
+  end;
+end;
+
+//private
+procedure Field.unhashField(h: int64);//Считывание поля из кода
+var
+  nodeAmount: Integer := nodes.Length;
+  multiplier: int64 = int64(BigInteger.Pow(3, nodeAmount - 1));
+begin
+  for var i := nodeAmount - 1 downto 0 do
+  begin
+    nodes[i].team := h div multiplier;
+    h := h mod multiplier;
+    multiplier := multiplier div 3;
+  end;
+end;
+
+//private
+function Field.hashTurn(t: Turn; team: Integer): Word;//Уникальный код хода
+var
+  nT: Turn := new Turn(-1);
+  i: Integer;
+  opponent: Integer = (team = 1 ? 2 : 1);
+begin
+  //15625 состояний -> 3400
+  i := 0;
+  while (i <= t.currentID) do
+  begin
+    if (nodes[i].team = team) then nT.currentID += 1;
+    i += 1;
+  end;
+  
+  i := 0;
+  while (i <= t.takenID) do
+  begin
+    if (nodes[i].team = opponent) then nT.takenID += 1;
+    i += 1;
+  end;
+  
+  i := 0;
+  while (true) do
+  begin
+    
+  end;
+  result := nT.currentID * nT.nextID * nT.takenID * team;
+end;
+
+//private
+function Field.unhashTurn(h: Word): Turn;//Считывание хода из кода
+var
+  i: Integer;
+begin
+//  i := 0;
+//  while (i <= t.currentID) do
+//  begin
+//  if (nodes[i].team = team) then nT.currentID += 1;
+//  i+=1;
+//  end;
+//  
+//  i := 0;
+//  while (i <= t.takenID) do
+//  begin
+//  if (nodes[i].team = opponent) then nT.takenID += 1;
+//  i+=1;
+//  end;
+//  
+//  i := 0;
+//  while (i <= t.nextID) do
+//  begin
+//  if (nodes[i].team = 0) then nT.nextID += 1;
+//  i+=1;
+//  end;
+//  result:=nT;
+end;
+
+{$endRegion ID/convert functions}
+
+{$region Turns}
 
 //private
 function Field.findTurn(turnsDepth: Integer): Turn;//Поиск хода для текущей команды
@@ -173,21 +250,6 @@ begin
       result := new Turn(t);
     end;
     reverseTurn(t);
-  end;
-end;
-
-//private
-function Field.longToBytes(c: int64): List<Integer>;//Конвертируем значения счетчика на лету в хеш поля
-var
-  bytes: Integer = nodes.Length div 5 + 1;
-  d: int64 = power(256, bytes - 1).Round;
-begin
-  result := new List<Integer>;
-  for var i := 0 to (bytes - 1) do
-  begin
-    result.Add(c div d);
-    c := c mod d;
-    d := d div 256;
   end;
 end;
 
@@ -223,6 +285,115 @@ begin
 end;
 
 //private
+procedure Field.occupy(idx, team: Integer);//Постановка фишки
+begin
+  nodes[idx].team := team;
+end;
+
+//private
+function Field.leave(idx: Integer): Integer;//Снятие фишки с доски
+begin
+  result := nodes[idx].team;
+  nodes[idx].team := 0;
+end;
+
+{$endRegion Turns}
+
+{$region Graphics}
+
+//public
+procedure Field.setScale();//Автоматическое ремасштабирование
+begin
+  borderPoints.setScale();
+end;
+
+//public
+procedure Field.setScale(var coeff: Double);//Ручное ремасштабирование
+begin
+  borderPoints.setScale(coeff);
+end;
+
+//public
+procedure Field.show();//Вывод поля на экран
+var
+  currPoint, linkedPoint: Point;
+begin
+  Window.Clear;
+  for var i := 0 to (nodes.Length - 1) do
+  begin
+    var node := nodes[i];
+    currPoint := node.placement;
+    foreach var linkedNode in node.linkedNodes do
+    begin
+      linkedPoint := nodes[linkedNode].placement;
+      currPoint.line(linkedPoint, borderPoints.centerAlignOffset, borderPoints.minPoint, borderPoints.scale);
+      if (node.team <> 0) then currPoint.markOccupied(borderPoints.centerAlignOffset, borderPoints.minPoint, borderPoints.scale, node.team);//Если клетка занята, отмечаем ее цветом команды на экране
+      currPoint.subscribeIdx(i, borderPoints.centerAlignOffset, borderPoints.minPoint, borderPoints.scale);
+    end;
+  end;
+end;
+
+{$endRegion Graphics}
+
+{$region IO}
+
+//public
+procedure Field.readField(fileName: String);//Чтение поля из файла
+var
+  t: text;
+  i, x, y, snap: Integer;
+  snaps: array of array of Integer;
+  newPoint: Point;
+  lines := ReadAllLines(fileName + '.txt');
+begin
+  var line := lines[0];
+  repeat
+    begin
+      SetLength(snaps, i + 1);
+      SetLength(nodes, i + 1);
+      var info := line.RegexReplace('[a-z]+: *', '').Split(' ');
+      {$omp parallel sections}
+      begin
+        i := info[0].ToInteger;
+        x := info[1].ToInteger;
+        y := info[2].ToInteger;
+      end;
+      setLength(snaps[i], info.Length - 3);
+      for var j := 3 to (info.Length - 1) do//Перебираем индексы связанных с текущей точек
+      begin
+        snap := info[j].ToInteger;
+        snaps[i][j - 3] := snap;//Заполняем массив связей
+      end;
+      newPoint := new Point(x, y);
+      borderPoints.checkPoint(newPoint);//Ремасштабирование
+      nodes[i] := new Node(newPoint);
+      nodes[i].linkedNodes := snaps[i];
+      writeln(snaps[i]);
+      i += 1;
+      line := lines[i];
+    end;
+  until (line = 'mills:');//Пока не доберемся до перечисления позиций для мельниц
+  
+  var length := Lines.Length;
+  SetLength(mills, length - i - 1);
+  for var j := i + 1 to length - 1 do
+  begin
+    line := lines[j];
+    mills[j - i - 1] := new Mill(line);
+  end;
+end;
+
+//public
+procedure Field.readGame(path: String);//Чтение записи игры из текстового файла
+begin
+  
+end;
+
+{$endRegion IO}
+
+{$region Field info}
+
+//private
 function Field.getThings(var team: Integer): List<Integer>;//Возвращает фишки команды
 var
   i: Integer := 0;
@@ -255,24 +426,12 @@ begin
 end;
 
 //private
-function Field.getRate(var team: Integer): Real;//Оценка позиции
-var
-  difference: Integer;
-  opponent: Integer := (team = 1 ? 2 : 1);
-  ways: Integer := paths4teamAdvantage(team, opponent);
-begin
-  difference := things.getDifference(team, opponent);
-  result := (difference + ways / 10) * 10 / (currentTurnNumber + 10);//Примерная оценка свободы хода. Для ранних ходов выше
-  if (ways = 0) then result := Integer.MinValue;
-end;
-
-//private
 function Field.whereToPlaceNewAll: List<Turn>;//Перебор простых ходов (напрямую не вызывать!)
 begin
   result := new List<Turn>;
-  for var j := 0 to nodes.Length - 1 do
+  for var j := 0 to (nodes.Length - 1) do
     if (nodes[j].team = 0) then 
-      result.Add(new Turn(-1, j, -1)); 
+      result.Add(new Turn(j)); 
 end;
 
 //private
@@ -302,7 +461,7 @@ begin
     begin
       check := checkNearBuildMill(opponent, m);
       if (check <> -1) then
-        result.add(new Turn(-1, check, -1));
+        result.add(new Turn(check));
     end;
   
   //Выбираем, куда вообще можем сходить, если все плохо
@@ -319,7 +478,7 @@ var
 begin
   startNodes := new List<Integer>;
   result := new List<Turn>;
-  for var i := 0 to nodes.Length - 1 do
+  for var i := 0 to (nodes.Length - 1) do
     if (nodes[i].team = 0) then
     begin
       startNodes := (things.getElements(team) = 3 ? getThings(team) : canOccupy(team, i));//Откуда можем ходить?
@@ -358,31 +517,6 @@ begin
   //Выбираем, куда вообще можем сходить, если все плохо
   if (result.Count = 0) then
     result := whereToMoveAll(team);
-end;
-
-//public
-procedure Field.setScale();//Автоматическое ремасштабирование
-begin
-  borderPoints.setScale();
-end;
-
-//public
-procedure Field.setScale(var coeff: Double);//Ручное ремасштабирование
-begin
-  borderPoints.setScale(coeff);
-end;
-
-//private
-procedure Field.occupy(idx, team: Integer);//Постановка фишки
-begin
-  nodes[idx].team := team;
-end;
-
-//private
-function Field.leave(idx: Integer): Integer;//Снятие фишки с доски
-begin
-  result := nodes[idx].team;
-  nodes[idx].team := 0;
 end;
 
 //private
@@ -494,16 +628,11 @@ begin
 end;
 
 //public
-function Field.checkLoss: Boolean;
-begin
-  result := false;
-  if (getThingsAmount(1) = 2) 
-  or (getThingsAmount(2) = 2) 
-  or (wayExists(1))
-  or (wayExists(2))
-    then
-    result := true;
-end;
+function Field.checkLoss: Boolean :=
+(getThingsAmount(1) = 2) 
+or (getThingsAmount(2) = 2) 
+or (not wayExists(1))
+or (not wayExists(2));
 
 //private
 function Field.checkConnection(idx1, idx2: Integer): Boolean;//Проверка существования связи между узлами
@@ -513,172 +642,64 @@ begin
     if (i = idx2) then result := true;
 end;
 
-//public
-procedure Field.readField(fileName: String);//Чтение поля из файла
+{$endRegion Field info}
+
+{$region MinMax}
+
+//private
+function Field.predictRate(turnsDepth: Integer): Real;//Вызывать только от нечетного количества ходов
 var
-  t: text;
-  i, x, y, snap: Integer;
-  snaps: array of array of Integer;
-  newPoint: Point;
-  lines := ReadAllLines(fileName + '.txt');
+  turns: List<Turn>;
+  currTeam: Integer := currentTurnNumber mod 2 + 1;
+  quality: Real := Real.MinValue;//Качество лучшего хода
+  rate: Real;
+  getLower: Boolean := turnsDepth mod 2 = 1;
 begin
-  var line := lines[0];
-  repeat
+  if (currentTurnNumber < thingsAmount * 2) then
+    turns := whereToPlaceNew(currTeam)
+  else turns := whereToMove(currTeam);
+  
+  result := (getLower ? Real.MaxValue : Real.MinValue);//Рейтинг текущего хода. Минимакс
+  
+  if (turnsDepth = 0) then//Завершение рекурсии
+    foreach var t in turns do//Для всех возможных ходов оцениваем последствия
     begin
-      SetLength(snaps, i + 1);
-      SetLength(nodes, i + 1);
-      var info := line.RegexReplace('[a-z]+: *', '').Split(' ');
-      {$omp parallel sections}
-      begin
-        i := info[0].ToInteger;
-        x := info[1].ToInteger;
-        y := info[2].ToInteger;
-      end;
-      setLength(snaps[i], info.Length - 3);
-      for var j := 3 to (info.Length - 1) do//Перебираем индексы связанных с текущей точек
-      begin
-        snap := info[j].ToInteger;
-        snaps[i][j - 3] := snap;//Заполняем массив связей
-      end;
-      newPoint := new Point(x, y);
-      borderPoints.checkPoint(newPoint);//Ремасштабирование
-      nodes[i] := new Node(newPoint);
-      nodes[i].linkedNodes := snaps[i];
-      writeln(snaps[i]);
-      i += 1;
-      line := lines[i];
-    end;
-  until (line = 'mills:');//Пока не доберемся до перечисления позиций для мельниц
-  
-  var length := Lines.Length;
-  SetLength(mills, length - i - 1);
-  for var j := i + 1 to length - 1 do
+      makeTurn(t, currTeam);
+      rate := getRate(currTeam);
+      if (result < rate) then result := getRate(currTeam);//И возвращаем лучший положительный результат
+      reverseTurn(t);
+    end
+  else
   begin
-    line := lines[j];
-    mills[j - i - 1] := new Mill(line);
-  end;
-end;
-
-//private
-function Field.hashTurn(t: Turn; team: Integer): Word;//Уникальный код хода
-var
-  nT: Turn := new Turn(-1, -1, -1);
-  i: Integer;
-  opponent: Integer = (team = 1 ? 2 : 1);
-begin
-  //15625 состояний -> 3400
-  i := 0;
-  while (i <= t.currentID) do
-  begin
-    if (nodes[i].team = team) then nT.currentID += 1;
-    i += 1;
-  end;
-  
-  i := 0;
-  while (i <= t.takenID) do
-  begin
-    if (nodes[i].team = opponent) then nT.takenID += 1;
-    i += 1;
-  end;
-  
-  i := 0;
-  while (true) do
-  begin
-    
-  end;
-  result := nT.currentID * nT.nextID * nT.takenID * team;
-end;
-
-//private
-function Field.unhashTurn(h: Word): Turn;//Считывание хода из кода
-var
-  i: Integer;
-begin
-  {i := 0;
-  while (i <= t.currentID) do
-  begin
-  if (nodes[i].team = team) then nT.currentID += 1;
-  i+=1;
-  end;
-  
-  i := 0;
-  while (i <= t.takenID) do
-  begin
-  if (nodes[i].team = opponent) then nT.takenID += 1;
-  i+=1;
-  end;
-  
-  i := 0;
-  while (i <= t.nextID) do
-  begin
-  if (nodes[i].team = 0) then nT.nextID += 1;
-  i+=1;
-  end;
-  result:=nT;}
-end;
-
-//private
-function Field.hashField: int64;//Уникальный код поля
-var
-  nodeAmount: Integer := nodes.Length;
-  multiplier: int64 = 1;
-begin
-  for var i := 0 to nodeAmount - 1 do//Каждый узел перекодируем
-  begin
-    var sum: int64 = 0;
-    sum := nodes[i].team * multiplier;
-    multiplier *= 3;
-    result += sum;
-  end;
-end;
-
-//private
-procedure Field.unhashField(h: int64);//Считывание поля из кода
-var
-  nodeAmount: Integer := nodes.Length;
-  multiplier: int64 = int64(BigInteger.Pow(3, nodeAmount - 1));
-begin
-  for var i := nodeAmount - 1 downto 0 do
-  begin
-    nodes[i].team := h div multiplier;
-    h := h mod multiplier;
-    multiplier := multiplier div 3;
-  end;
-end;
-
-//public
-procedure Field.readGame(path: String);//Чтение записи игры из текстового файла
-begin
-  
-end;
-
-//public
-procedure Field.addNode(newNode: Node);
-begin
-  borderPoints.checkPoint(newNode.placement);
-  setLength(nodes, nodes.Length + 1);
-  nodes[nodes.Length - 1] := newNode;
-end;
-
-//public
-procedure Field.show();//Вывод поля на экран
-var
-  currPoint, linkedPoint: Point;
-begin
-  Window.Clear;
-  for var i := 0 to nodes.Length - 1 do
-  begin
-    var node := nodes[i];
-    currPoint := node.placement;
-    foreach var linkedNode in node.linkedNodes do
+    foreach var t in turns do//Для каждого возможного хода
     begin
-      linkedPoint := nodes[linkedNode].placement;
-      currPoint.line(linkedPoint, borderPoints.centerAlignOffset, borderPoints.minPoint, borderPoints.scale);
-      if (node.team <> 0) then currPoint.markOccupied(borderPoints.centerAlignOffset, borderPoints.minPoint, borderPoints.scale, node.team);//Если клетка занята, отмечаем ее цветом команды на экране
-      currPoint.subscribeIdx(i, borderPoints.centerAlignOffset, borderPoints.minPoint, borderPoints.scale);
+      makeTurn(t, currTeam);
+      if (things.getElements(currTeam mod 2 + 1) <= 2) and (currentTurnNumber > thingsAmount * 2)//Если фигур у оппонента не осталось, то выдаем максимальную оценку текущему игроку и не считаем дальше (опт.)
+        then result := (getLower ? Real.MinValue : Real.MaxValue)
+      else 
+      begin
+        quality := predictRate(turnsDepth - 1);//Предсказываем его последствия
+        if ((getLower) ? (result > quality) : (result < quality)) 
+          then result := quality;//И возвращаем лучший/худший результат
+      end;
+      reverseTurn(t);
     end;
   end;
 end;
+
+//private
+function Field.getRate(var team: Integer): Real;//Оценка позиции
+var
+  difference: Integer;
+  opponent: Integer := (team = 1 ? 2 : 1);
+  ways: Integer := paths4teamAdvantage(team, opponent);
+begin
+  difference := things.getDifference(team, opponent);
+  result := (difference + ways / 10) * 10 / (currentTurnNumber + 10);//Примерная оценка свободы хода. Для ранних ходов выше
+  if (ways = 0) then result := Integer.MinValue;
+end;
+
+{$endRegion MinMax}
 
 {---------------------------------}
 

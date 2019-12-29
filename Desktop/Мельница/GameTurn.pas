@@ -8,7 +8,9 @@ type
   Turn = record
   
   public
-    currentID, nextID, takenID: integer;
+    currentID, nextID, takenID: Integer;
+    
+    {$region Constructors}
     
     constructor create(t: turn);
     begin
@@ -17,19 +19,21 @@ type
       takenID := t.takenID;
     end;
     
-    constructor create(start, finish, got: integer);
+    constructor create(start, finish, got: Integer);
     begin
       currentID := start;
       nextID := finish;
       takenID := got;
     end;
     
-    constructor create(start, finish: integer);
+    constructor create(finish: Integer);
     begin
-      currentID := start;
+      currentID := -1;
       nextID := finish;
       takenID := -1;
     end;
+  
+    {$endRegion Constructors}
   
   end;
 

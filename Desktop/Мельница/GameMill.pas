@@ -12,6 +12,8 @@ type
   public
     elements:= new Integer[3];//Индексы поля, составляющие мельницу
     
+    {$region Constructors}
+    
     constructor create(first, second, third: Integer);
     begin
       elements[0]:=first;
@@ -25,6 +27,8 @@ type
       for var i := 0 to 2 do
         elements[i]:=idxs[i].ToInteger;
     end;
+  
+    {$endRegion Constructors}
   
   public
     function hasElement(e: Integer): Boolean;//Проверяет наличие элемента в мельнице

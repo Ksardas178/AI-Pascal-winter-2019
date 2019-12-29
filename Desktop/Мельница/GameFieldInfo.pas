@@ -8,20 +8,20 @@ type
   FieldInfo = class
   
   private
-    elements := new integer[2];//Число фишек у команд
+    elements := new Integer[2];//Число фишек у команд
   
   public
-    constructor create(blue, red: integer);
+    constructor create(blue, red: Integer);
     begin
       elements[0] := blue;
       elements[1] := red;
     end;
   
   public
-    procedure remove(team: integer);//Убирает фишку команды
-    procedure add(team: integer);//Добавляет фишку команде
-    function getDifference(team, opponent: integer): integer;//Возвращает разницу между фишками команды и соперника
-    function getElements(team: integer): integer;//Возвращает количество элементов команды
+    procedure remove(team: Integer);//Убирает фишку команды
+    procedure add(team: Integer);//Добавляет фишку команде
+    function getDifference(team, opponent: Integer): Integer;//Возвращает разницу между фишками команды и соперника
+    function getElements(team: Integer): Integer;//Возвращает количество элементов команды
   
   end;
 
@@ -30,25 +30,25 @@ type
 implementation
 
 //public
-procedure FieldInfo.remove(team: integer);//Убирает фишку команды
+procedure FieldInfo.remove(team: Integer);//Убирает фишку команды
 begin
   elements[team - 1] -= 1;
 end;
 
 //public
-procedure FieldInfo.add(team: integer);//Добавляет фишку команде
+procedure FieldInfo.add(team: Integer);//Добавляет фишку команде
 begin
   elements[team - 1] += 1;
 end;
 
 //public
-function FieldInfo.getDifference(team, opponent: integer): integer;
+function FieldInfo.getDifference(team, opponent: Integer): Integer;
 begin
   result := elements[team - 1] - elements[opponent - 1];
 end;
 
 //public
-function FieldInfo.getElements(team: integer): integer;//Возвращает количество элементов команды
+function FieldInfo.getElements(team: Integer): Integer;//Возвращает количество элементов команды
 begin
   result := elements[team - 1];
 end;

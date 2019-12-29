@@ -15,6 +15,8 @@ type
   public
     x, y: Integer;
     
+    {$region Constructors}
+    
     constructor create(newX, newY: Integer);
     begin
       x := newX;
@@ -26,6 +28,8 @@ type
       x := other.x;
       y := other.y;    
     end;
+    
+    {$endRegion Constructors}
     
     procedure print; reintroduce;//Переопределение вывода координат
     begin
@@ -46,6 +50,8 @@ type
 {-------------------------------}
 
 implementation
+
+{$region Drawing}
 
 //public
 procedure Point.markOccupied(offset, toResize: Point; scale: Double; c: Integer);
@@ -81,6 +87,8 @@ procedure Point.line(other: Point);//Проводит линию между дв
 begin
   GraphABC.Line(x, window.Height - y, other.x, window.Height - other.y);
 end;
+
+{$endRegion Drawing}
 
 //private
 function Point.getNewCoord(offset, toResize: Point; scale: Double): Point;//Пересчет координат в новом масштабе

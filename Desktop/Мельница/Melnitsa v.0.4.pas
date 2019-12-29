@@ -1,15 +1,21 @@
-﻿uses 
+﻿{$region Uses}
+
+uses 
   GraphABC,
   GameField,
   GameTurn;
 
+{$endRegion Uses}
+
 var
   field_1: Field;
   t: Turn;
-  team: byte = 1;
-  startID, finishID, eatenID: integer;
+  team: Integer = 1;
+  startID, finishID, eatenID: Integer;
 
 begin
+  
+  {$region Prepairing field}
   
   Window.Maximize;
   window.Caption := 'Мельница';
@@ -20,6 +26,10 @@ begin
   
   field_1.show;
   redraw;
+  
+  {$endRegion Prepairing field}
+  
+  {$region Game Cycle}
   
   while (true) do
   begin
@@ -46,4 +56,7 @@ begin
     Redraw;
     team := (team = 1 ? 2 : 1);//Меняем команду
   end;
+  
+  {$endRegion Game Cycle}
+  
 end.
