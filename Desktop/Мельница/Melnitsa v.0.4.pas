@@ -21,7 +21,7 @@ begin
   window.Caption := 'Мельница';
   LockDrawing;
   
-  field_1 := new Field('field_3');
+  field_1 := new Field('Source/field_3');
   field_1.setScale();
   
   field_1.show;

@@ -39,9 +39,9 @@ type
   {$region Constructors}
   
   public
-  
     
-  
+    
+    
     constructor create();
     begin
       borderPoints := new Borders;
@@ -70,7 +70,7 @@ type
     end;
   
   {$endRegion Constructors}
-    
+  
   public
     //Процедуры:
     procedure show();//Вывод поля на экран
@@ -86,11 +86,11 @@ type
   
   private
     //Процедуры:
-    procedure unhashField(h: int64);//Считывание поля из кода
+    procedure unhashField(h: Int64);//Считывание поля из кода
     procedure reverseTurn(t: Turn);//Отмена хода
     procedure occupy(idx, team: Integer);//Постановка фишки
     //Функции:
-    function hashField: int64;//Уникальный код поля    
+    function hashField: Int64;//Уникальный код поля    
     function hashTurn(t: Turn; team: Integer): Word;//Уникальный код хода
     function unhashTurn(h: Word): Turn;//Считывание хода из кода    
     function leave(idx: Integer): Integer;//Снятие фишки с доски, возвращает команду
@@ -108,7 +108,7 @@ type
     function getRate(var team: Integer): Real;//Оценка текущей позиции
     function paths4teamAdvantage(team, opponent: Integer): Integer;//Возвращает преимущество в путях для team над opponent (оценочная)
     function paths4team(team: Integer): Integer;//Возвращает свободные пути для team
-    function longToBytes(c: int64): List<Integer>;//Конвертируем значения счетчика на лету в хеш поля
+    function longToBytes(c: Int64): List<Byte>;//Конвертируем значения счетчика на лету в хеш поля
     function predictRate(turnsDepth: Integer): Real;//Оценка поля через n ходов
     function getThingsAmount(team: Integer): Integer;//Возвращает количество фишек команды
     function wayExists(team: Integer): Boolean;//Есть ли свобода передвижения?
@@ -122,29 +122,30 @@ implementation
 {$region ID/convert functions}
 
 //private
-function Field.longToBytes(c: int64): List<Integer>;//Конвертируем значения счетчика на лету в хеш поля
+function Field.longToBytes(c: Int64): List<Byte>;//Конвертируем значения счетчика на лету в хеш поля
 var
   bytes: Integer = nodes.Length div 5 + 1;
-  d: int64 = power(256, bytes - 1).Round;
+  d: Int64 = 256 shl (8*(bytes-1))//256^(bytes - 1)
 begin
-  result := new List<Integer>;
-  for var i := 0 to (bytes - 1) do
-  begin
+   
+   result := new List<Byte>;
+   for var i := 0 to (bytes - 1) do
+   begin
     result.Add(c div d);
     c := c mod d;
-    d := d div 256;
+    d := d shr 8;//2^8 = 256
   end;
 end;
 
 //private
-function Field.hashField: int64;//Уникальный код поля
+function Field.hashField: Int64;//Уникальный код поля
 var
   nodeAmount: Integer := nodes.Length;
-  multiplier: int64 = 1;
+  multiplier: Int64 = 1;
 begin
   for var i := 0 to nodeAmount - 1 do//Каждый узел перекодируем
   begin
-    var sum: int64 = 0;
+    var sum: Int64 = 0;
     sum := nodes[i].team * multiplier;
     multiplier *= 3;
     result += sum;
@@ -152,10 +153,10 @@ begin
 end;
 
 //private
-procedure Field.unhashField(h: int64);//Считывание поля из кода
+procedure Field.unhashField(h: Int64);//Считывание поля из кода
 var
   nodeAmount: Integer := nodes.Length;
-  multiplier: int64 = int64(BigInteger.Pow(3, nodeAmount - 1));
+  multiplier: Int64 = Int64(BigInteger.Pow(3, nodeAmount - 1));
 begin
   for var i := nodeAmount - 1 downto 0 do
   begin
@@ -200,27 +201,27 @@ function Field.unhashTurn(h: Word): Turn;//Считывание хода из к
 var
   i: Integer;
 begin
-//  i := 0;
-//  while (i <= t.currentID) do
-//  begin
-//  if (nodes[i].team = team) then nT.currentID += 1;
-//  i+=1;
-//  end;
-//  
-//  i := 0;
-//  while (i <= t.takenID) do
-//  begin
-//  if (nodes[i].team = opponent) then nT.takenID += 1;
-//  i+=1;
-//  end;
-//  
-//  i := 0;
-//  while (i <= t.nextID) do
-//  begin
-//  if (nodes[i].team = 0) then nT.nextID += 1;
-//  i+=1;
-//  end;
-//  result:=nT;
+  //  i := 0;
+  //  while (i <= t.currentID) do
+  //  begin
+  //  if (nodes[i].team = team) then nT.currentID += 1;
+  //  i+=1;
+  //  end;
+  //  
+  //  i := 0;
+  //  while (i <= t.takenID) do
+  //  begin
+  //  if (nodes[i].team = opponent) then nT.takenID += 1;
+  //  i+=1;
+  //  end;
+  //  
+  //  i := 0;
+  //  while (i <= t.nextID) do
+  //  begin
+  //  if (nodes[i].team = 0) then nT.nextID += 1;
+  //  i+=1;
+  //  end;
+  //  result:=nT;
 end;
 
 {$endRegion ID/convert functions}
@@ -675,13 +676,14 @@ begin
     begin
       makeTurn(t, currTeam);
       if (things.getElements(currTeam mod 2 + 1) <= 2) and (currentTurnNumber > thingsAmount * 2)//Если фигур у оппонента не осталось, то выдаем максимальную оценку текущему игроку и не считаем дальше (опт.)
-        then result := (getLower ? Real.MinValue : Real.MaxValue)
-      else 
-      begin
-        quality := predictRate(turnsDepth - 1);//Предсказываем его последствия
-        if ((getLower) ? (result > quality) : (result < quality)) 
-          then result := quality;//И возвращаем лучший/худший результат
-      end;
+      then 
+        begin
+         result := (getLower ? Real.MinValue : Real.MaxValue);
+         exit;
+        end;
+      quality := predictRate(turnsDepth - 1);//Предсказываем его последствия
+      if ((getLower) ? (result > quality) : (result < quality)) 
+        then result := quality;//И возвращаем лучший/худший результат
       reverseTurn(t);
     end;
   end;
